@@ -11,13 +11,13 @@ AnnoyIndexWrapper::AnnoyIndexWrapper(int dimensions, const char *metricString) :
   annoyDimensions(dimensions) {
 
   if (strcmp(metricString, "Angular") == 0) {
-    annoyIndex = new AnnoyIndex<int, float, Angular, Kiss64Random>(dimensions);
+    annoyIndex = new AnnoyIndex<int, float, Angular, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
   }
   else if (strcmp(metricString, "Manhattan") == 0) {
-    annoyIndex = new AnnoyIndex<int, float, Manhattan, Kiss64Random>(dimensions);
+    annoyIndex = new AnnoyIndex<int, float, Manhattan, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
   }
   else {
-    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random>(dimensions);    
+    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);    
   }
 }
 
@@ -27,6 +27,7 @@ AnnoyIndexWrapper::~AnnoyIndexWrapper() {
 
 void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
   Nan::HandleScope scope;
+  v8::Local<v8::Context> context = Nan::GetCurrentContext();
 
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -49,7 +50,7 @@ void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "getDistance", GetDistance);
 
   constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-  exports->Set(Nan::New("Annoy").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  exports->Set(context, Nan::New("Annoy").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 void AnnoyIndexWrapper::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -243,13 +244,14 @@ void AnnoyIndexWrapper::getSupplementaryGetNNsParams(
   searchK = info[2]->IsUndefined() ? -1 : info[2]->NumberValue(context).FromJust();
 
   // Get out include distances flag.
-  includeDistances = info[3]->IsUndefined() ? false : info[3]->BooleanValue(context).FromJust();
+  includeDistances = info[3]->IsUndefined() ? false : Nan::To<bool>(info[3]).FromJust();
 }
 
 void AnnoyIndexWrapper::setNNReturnValues(
   int numberOfNeighbors, bool includeDistances,
   const std::vector<int>& nnIndexes, const std::vector<float>& distances,
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = Nan::GetCurrentContext();
 
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
@@ -270,8 +272,8 @@ void AnnoyIndexWrapper::setNNReturnValues(
     }
 
     jsResultObject = Nan::New<Object>();
-    jsResultObject->Set(Nan::New("neighbors").ToLocalChecked(), jsNNIndexes);
-    jsResultObject->Set(Nan::New("distances").ToLocalChecked(), jsDistancesArray);
+    jsResultObject->Set(context, Nan::New("neighbors").ToLocalChecked(), jsNNIndexes);
+    jsResultObject->Set(context, Nan::New("distances").ToLocalChecked(), jsDistancesArray);
   }
   else {
     jsResultObject = jsNNIndexes.As<Object>();
@@ -290,6 +292,7 @@ void AnnoyIndexWrapper::GetNItems(const Nan::FunctionCallbackInfo<v8::Value>& in
 // Returns true if it was able to get items out of the array. false, if not.
 bool AnnoyIndexWrapper::getFloatArrayParam(
   const Nan::FunctionCallbackInfo<v8::Value>& info, int paramIndex, float *vec) {
+  v8::Local<v8::Context> context = Nan::GetCurrentContext();
 
   bool succeeded = false;
 
@@ -299,9 +302,9 @@ bool AnnoyIndexWrapper::getFloatArrayParam(
     Local<Array> jsArray = Local<Array>::Cast(info[paramIndex]);
     Local<Value> val;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
-      val = jsArray->Get(i);
+      val = jsArray->Get(context, i).ToLocalChecked();
       // printf("Adding item to array: %f\n", (float)val->NumberValue(Nan::GetCurrentContext()).FromJust());
-      vec[i] = (float)val->NumberValue(Nan::GetCurrentContext()).FromJust();
+      vec[i] = (float)val->NumberValue(context).FromJust();
     }
     succeeded = true;
   }
