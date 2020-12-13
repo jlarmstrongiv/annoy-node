@@ -47,6 +47,7 @@ typedef signed __int64    int64_t;
   #define NOMINMAX
  #endif
  #include "malloc.h"
+ #define alloca _malloca
  #include "mman.h"
  #include <windows.h>
  #undef max
