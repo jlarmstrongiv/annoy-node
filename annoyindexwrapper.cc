@@ -1,6 +1,8 @@
 #include "annoyindexwrapper.h"
 #include "kissrandom.h"
 #include <vector>
+#include <fstream>
+#include <iostream>
 
 using namespace v8;
 using namespace Nan;
@@ -17,7 +19,7 @@ AnnoyIndexWrapper::AnnoyIndexWrapper(int dimensions, const char *metricString) :
     annoyIndex = new AnnoyIndex<int, float, Manhattan, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
   }
   else {
-    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);    
+    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
   }
 }
 
@@ -58,7 +60,7 @@ void AnnoyIndexWrapper::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if (info.IsConstructCall()) {
     // Invoked as constructor: `new AnnoyIndexWrapper(...)`
     double dimensions = info[0]->IsUndefined() ? 0 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
-    Local<String> metricString; 
+    Local<String> metricString;
 
     if (!info[1]->IsUndefined()) {
       Nan::MaybeLocal<String> s = Nan::To<String>(info[1]);
@@ -87,6 +89,10 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   if (getFloatArrayParam(info, 1, vec.data())) {
     obj->annoyIndex->add_item(index, vec.data());
   }
+  std::ofstream myFile;
+  myFile.open('annoyindexwrapper.log');
+  myFile << "Hello " << length << std::endl;
+  myFile.close();
 }
 
 void AnnoyIndexWrapper::Build(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -191,7 +197,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   std::vector<int> nnIndexes;
   std::vector<float> distances;
   std::vector<float> *distancesPtr = nullptr;
-  
+
   if (includeDistances) {
     distancesPtr = &distances;
   }
@@ -320,4 +326,3 @@ bool AnnoyIndexWrapper::getFloatArrayParam(
 int AnnoyIndexWrapper::getDimensions() {
   return annoyDimensions;
 }
-
