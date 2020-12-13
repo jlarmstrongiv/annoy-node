@@ -92,7 +92,11 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   // C:\Users\jlarmst\Downloads\annoy-example\annoy-example
   std::ofstream myFile;
   myFile.open("C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log");
-  myFile << "Hello " << length << std::endl;
+  int i = 0;
+  for (auto& elem: vec) {
+    myFile << i << " " << elem << std::endl;
+    ++i;
+  }
   myFile.close();
 }
 
