@@ -47,7 +47,6 @@ typedef signed __int64    int64_t;
   #define NOMINMAX
  #endif
  #include "malloc.h"
- #define alloca _malloca
  #include "mman.h"
  #include <windows.h>
  #undef max
@@ -1360,8 +1359,22 @@ protected:
     myFile.close();
     D::template zero_value<Node>(v_node);
     myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1c" << std::endl;
+    myFile << "_get_all_nns 1c" << " " << _s << " " << _f << " " << sizeof(T) << " " << sizeof(T) * _f << std::endl;
     myFile.close();
+    int i = 0;
+    for (int i=0; i<_s;++i) {
+      myFile.open(filepath, std::ios_base::app);
+      myFile << "_get_all_nns 1c ";
+      myFile << i << " " << v_node[i] << std::endl;
+      myFile.close();
+    }
+    int i = 0;
+    for (int i=0; i<_s;++i) {
+      myFile.open(filepath, std::ios_base::app);
+      myFile << "_get_all_nns 1c ";
+      myFile << i << " " << v[i] << std::endl;
+      myFile.close();
+    }
     memcpy(v_node->v, v, sizeof(T) * _f);
     myFile.open(filepath, std::ios_base::app);
     myFile << "_get_all_nns 1d" << std::endl;
