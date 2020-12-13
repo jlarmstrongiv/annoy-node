@@ -221,15 +221,12 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   int index = info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
   int numberOfNeighbors, searchK;
   bool includeDistances;
+
+  // FIXME: temporary logs
   std::ofstream myFile;
   std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "getSupGetNNsParams start" << std::endl;
-  myFile.close();
+
   getSupplementaryGetNNsParams(info, numberOfNeighbors, searchK, includeDistances);
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "getSupGetNNsParams end" << std::endl;
-  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;

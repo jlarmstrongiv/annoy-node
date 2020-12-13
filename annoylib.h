@@ -26,6 +26,9 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stddef.h>
+// FIXME: temporary
+#include <fstream>
+#include <iostream>
 
 #if defined(_MSC_VER) && _MSC_VER == 1500
 typedef unsigned char     uint8_t;
@@ -358,7 +361,7 @@ inline float euclidean_distance<float>(const float* x, const float* y, int f) {
 
 #endif
 
- 
+
 template<typename T>
 inline T get_norm(T* v, int f) {
   return sqrt(dot(v, v, f));
@@ -370,7 +373,7 @@ inline void two_means(const vector<Node*>& nodes, int f, Random& random, bool co
     This algorithm is a huge heuristic. Empirically it works really well, but I
     can't motivate it well. The basic idea is to keep two centroids and assign
     points to either one of them. We weight each centroid by the number of points
-    assigned to it, so to balance it. 
+    assigned to it, so to balance it.
   */
   static int iteration_steps = 200;
   size_t count = nodes.size();
@@ -560,7 +563,7 @@ struct DotProduct : Angular {
   static inline void create_split(const vector<Node<S, T>*>& nodes, int f, size_t s, Random& random, Node<S, T>* n) {
     Node<S, T>* p = (Node<S, T>*)alloca(s);
     Node<S, T>* q = (Node<S, T>*)alloca(s);
-    DotProduct::zero_value(p); 
+    DotProduct::zero_value(p);
     DotProduct::zero_value(q);
     two_means<T, Random, DotProduct, Node<S, T> >(nodes, f, random, true, p, q);
     for (int z = 0; z < f; z++)
@@ -764,7 +767,7 @@ struct Minkowski : Base {
 struct Euclidean : Minkowski {
   template<typename S, typename T>
   static inline T distance(const Node<S, T>* x, const Node<S, T>* y, int f) {
-    return euclidean_distance(x->v, y->v, f);    
+    return euclidean_distance(x->v, y->v, f);
   }
   template<typename S, typename T, typename Random>
   static inline void create_split(const vector<Node<S, T>*>& nodes, int f, size_t s, Random& random, Node<S, T>* n) {
@@ -845,7 +848,7 @@ class AnnoyIndexInterface {
 };
 
 template<typename S, typename T, typename Distance, typename Random, class ThreadedBuildPolicy>
-  class AnnoyIndex : public AnnoyIndexInterface<S, T, 
+  class AnnoyIndex : public AnnoyIndexInterface<S, T,
 #if __cplusplus >= 201103L
     typename std::remove_const<decltype(Random::default_seed)>::type
 #else
@@ -929,7 +932,7 @@ public:
 
     return true;
   }
-    
+
   bool on_disk_build(const char* file, char** error=NULL) {
     _on_disk = true;
     _fd = open(file, O_RDWR | O_CREAT | O_TRUNC, (int) 0600);
@@ -950,7 +953,7 @@ public:
 #endif
     return true;
   }
-    
+
   bool build(int q, int n_threads=-1, char** error=NULL) {
     if (_loaded) {
       set_error_from_string(error, "You can't build a loaded index");
@@ -976,7 +979,7 @@ public:
     _n_nodes += _roots.size();
 
     if (_verbose) showUpdate("has %d nodes\n", _n_nodes);
-    
+
     if (_on_disk) {
       if (!remap_memory_and_truncate(&_nodes, _fd,
           static_cast<size_t>(_s) * static_cast<size_t>(_nodes_size),
@@ -990,7 +993,7 @@ public:
     _built = true;
     return true;
   }
-  
+
   bool unbuild(char** error=NULL) {
     if (_loaded) {
       set_error_from_string(error, "You can't unbuild a loaded index");
@@ -1198,18 +1201,18 @@ protected:
     const double reallocation_factor = 1.3;
     S new_nodes_size = std::max(n, (S) ((_nodes_size + 1) * reallocation_factor));
     void *old = _nodes;
-    
+
     if (_on_disk) {
-      if (!remap_memory_and_truncate(&_nodes, _fd, 
-          static_cast<size_t>(_s) * static_cast<size_t>(_nodes_size), 
-          static_cast<size_t>(_s) * static_cast<size_t>(new_nodes_size)) && 
+      if (!remap_memory_and_truncate(&_nodes, _fd,
+          static_cast<size_t>(_s) * static_cast<size_t>(_nodes_size),
+          static_cast<size_t>(_s) * static_cast<size_t>(new_nodes_size)) &&
           _verbose)
           showUpdate("File truncation error\n");
     } else {
       _nodes = realloc(_nodes, _s * new_nodes_size);
       memset((char *) _nodes + (_nodes_size * _s) / sizeof(char), 0, (new_nodes_size - _nodes_size) * _s);
     }
-    
+
     _nodes_size = new_nodes_size;
     if (_verbose) showUpdate("Reallocating to %d nodes: old_address=%p, new_address=%p\n", new_nodes_size, old, _nodes);
   }
@@ -1343,6 +1346,12 @@ protected:
   }
 
   void _get_all_nns(const T* v, size_t n, int search_k, vector<S>* result, vector<T>* distances) const {
+    std::ofstream myFile;
+    std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
+
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1" << std::endl;
+    myFile.close();
     Node* v_node = (Node *)alloca(_s);
     D::template zero_value<Node>(v_node);
     memcpy(v_node->v, v, sizeof(T) * _f);
@@ -1353,11 +1362,17 @@ protected:
     if (search_k == -1) {
       search_k = n * _roots.size();
     }
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 2" << std::endl;
+    myFile.close();
 
     for (size_t i = 0; i < _roots.size(); i++) {
       q.push(make_pair(Distance::template pq_initial_value<T>(), _roots[i]));
     }
 
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 3" << std::endl;
+    myFile.close();
     std::vector<S> nns;
     while (nns.size() < (size_t)search_k && !q.empty()) {
       const pair<T, S>& top = q.top();
@@ -1376,6 +1391,9 @@ protected:
         q.push(make_pair(D::pq_distance(d, margin, 0), static_cast<S>(nd->children[0])));
       }
     }
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 4" << std::endl;
+    myFile.close();
 
     // Get distances for all items
     // To avoid calculating distance multiple times for any items, sort by id
@@ -1383,13 +1401,16 @@ protected:
     vector<pair<T, S> > nns_dist;
     S last = -1;
     for (size_t i = 0; i < nns.size(); i++) {
-      S j = nns[i]; 
+      S j = nns[i];
       if (j == last)
         continue;
       last = j;
       if (_get(j)->n_descendants == 1)  // This is only to guard a really obscure case, #284
         nns_dist.push_back(make_pair(D::distance(v_node, _get(j), _f), j));
     }
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 5" << std::endl;
+    myFile.close();
 
     size_t m = nns_dist.size();
     size_t p = n < m ? n : m; // Return this many items
@@ -1399,6 +1420,9 @@ protected:
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 6" << std::endl;
+    myFile.close();
   }
 };
 
