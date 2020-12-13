@@ -1370,7 +1370,7 @@ protected:
     for (int i=0; i<_s;++i) {
       myFile.open(filepath, std::ios_base::app);
       myFile << "_get_all_nns 1cb ";
-      myFile << i << " " << (v + i)->n_descendants << std::endl;
+      myFile << i << " " << v + i << std::endl;
       myFile.close();
     }
     memcpy(v_node->v, v, sizeof(T) * _f);
