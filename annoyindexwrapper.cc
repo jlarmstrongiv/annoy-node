@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 using namespace v8;
 using namespace Nan;
@@ -89,15 +90,6 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   if (getFloatArrayParam(info, 1, vec.data())) {
     obj->annoyIndex->add_item(index, vec.data());
   }
-  // C:\Users\jlarmst\Downloads\annoy-example\annoy-example
-  std::ofstream myFile;
-  myFile.open("C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log");
-  int i = 0;
-  for (auto& elem: vec) {
-    myFile << i << " " << elem << std::endl;
-    ++i;
-  }
-  myFile.close();
 }
 
 void AnnoyIndexWrapper::Build(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -229,7 +221,15 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   int index = info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
   int numberOfNeighbors, searchK;
   bool includeDistances;
+  std::ofstream myFile;
+  std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "getSupGetNNsParams start" << std::endl;
+  myFile.close();
   getSupplementaryGetNNsParams(info, numberOfNeighbors, searchK, includeDistances);
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "getSupGetNNsParams end" << std::endl;
+  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
@@ -240,11 +240,23 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   }
 
   // Make the call.
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "get_nns_by_item start" << std::endl;
+  myFile.close();
   obj->annoyIndex->get_nns_by_item(
     index, numberOfNeighbors, searchK, &nnIndexes, distancesPtr
   );
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "get_nns_by_item end" << std::endl;
+  myFile.close();
 
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNReturnValues start" << std::endl;
+  myFile.close();
   setNNReturnValues(numberOfNeighbors, includeDistances, nnIndexes, distances, info);
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNReturnValues end" << std::endl;
+  myFile.close();
 }
 
 void AnnoyIndexWrapper::getSupplementaryGetNNsParams(
