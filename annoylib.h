@@ -1346,19 +1346,35 @@ protected:
   }
 
   void _get_all_nns(const T* v, size_t n, int search_k, vector<S>* result, vector<T>* distances) const {
+    // FIXME: temporary logs
     std::ofstream myFile;
     std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
 
     myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1" << std::endl;
+    myFile << "_get_all_nns 1a" << std::endl;
     myFile.close();
     Node* v_node = (Node *)alloca(_s);
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1b" << std::endl;
+    myFile.close();
     D::template zero_value<Node>(v_node);
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1c" << std::endl;
+    myFile.close();
     memcpy(v_node->v, v, sizeof(T) * _f);
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1d" << std::endl;
+    myFile.close();
     D::init_node(v_node, _f);
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1e" << std::endl;
+    myFile.close();
 
     std::priority_queue<pair<T, S> > q;
 
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1f" << std::endl;
+    myFile.close();
     if (search_k == -1) {
       search_k = n * _roots.size();
     }
