@@ -1361,6 +1361,12 @@ protected:
     myFile.open(filepath, std::ios_base::app);
     myFile << "_get_all_nns 1c" << " " << _s << " " << _f << " " << sizeof(T) << " " << sizeof(T) * _f << std::endl;
     myFile.close();
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns 1ca ";
+    // NOTE: should print first item of v
+    myFile << i << " " << *v << std::endl;
+    myFile.close();
+    // NOTE: should error here
     for (int i=0; i<sizeof(T) * _f;++i) {
       myFile.open(filepath, std::ios_base::app);
       myFile << "_get_all_nns 1ca ";
