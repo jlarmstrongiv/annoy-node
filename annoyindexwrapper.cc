@@ -81,9 +81,11 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   // Get out index.
   int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
   // Get out array.
-  float vec[obj->getDimensions()];
-  if (getFloatArrayParam(info, 1, vec)) {
-    obj->annoyIndex->add_item(index, vec);
+  int length = obj->getDimensions();
+  // float vec[length];
+  std::vector<float> vec(length, 0.0f);
+  if (getFloatArrayParam(info, 1, vec.data())) {
+    obj->annoyIndex->add_item(index, vec.data());
   }
 }
 
@@ -143,8 +145,9 @@ void AnnoyIndexWrapper::GetItem(const Nan::FunctionCallbackInfo<v8::Value>& info
 
   // Get the vector.
   int length = obj->getDimensions();
-  float vec[length];
-  obj->annoyIndex->get_item(index, vec);
+  std::vector<float> vec(length, 0.0f);
+  //float vec[length];
+  obj->annoyIndex->get_item(index, vec.data());
 
   // Allocate the return array.
   Local<Array> results = Nan::New<Array>(length);
@@ -178,8 +181,10 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out array.
-  float vec[obj->getDimensions()];
-  if (!getFloatArrayParam(info, 0, vec)) {
+  int length = obj->getDimensions();
+  // float vec[length];
+  std::vector<float> vec(length, 0.0f);
+  if (!getFloatArrayParam(info, 0, vec.data())) {
     return;
   }
 
@@ -193,7 +198,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
 
   // Make the call.
   obj->annoyIndex->get_nns_by_vector(
-    vec, numberOfNeighbors, searchK, &nnIndexes, distancesPtr
+    vec.data(), numberOfNeighbors, searchK, &nnIndexes, distancesPtr
   );
 
   setNNReturnValues(numberOfNeighbors, includeDistances, nnIndexes, distances, info);

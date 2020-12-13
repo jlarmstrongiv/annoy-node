@@ -43,8 +43,11 @@ typedef signed __int64    int64_t;
  #ifndef NOMINMAX
   #define NOMINMAX
  #endif
+ #include "malloc.h"
  #include "mman.h"
  #include <windows.h>
+ #undef max
+ #undef min
 #else
  #include <sys/mman.h>
  #define lseek_getsize(fd) lseek(fd, 0, SEEK_END)
