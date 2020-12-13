@@ -89,8 +89,9 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   if (getFloatArrayParam(info, 1, vec.data())) {
     obj->annoyIndex->add_item(index, vec.data());
   }
+  // C:\Users\jlarmst\Downloads\annoy-example\annoy-example
   std::ofstream myFile;
-  myFile.open('annoyindexwrapper.log');
+  myFile.open('C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log');
   myFile << "Hello " << length << std::endl;
   myFile.close();
 }
