@@ -1362,18 +1362,18 @@ protected:
     myFile << "_get_all_nns 1c" << " " << _s << " " << _f << " " << sizeof(T) << " " << sizeof(T) * _f << std::endl;
     myFile.close();
     myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1ca ";
+    myFile << "_get_all_nns 1c0 ";
     // NOTE: should print first item of v
-    myFile << i << " " << *v << std::endl;
+    myFile << " " << *v << std::endl;
     myFile.close();
     // NOTE: should error here
-    for (int i=0; i<sizeof(T) * _f;++i) {
+    for (int i=0; i<_f;++i) {
       myFile.open(filepath, std::ios_base::app);
       myFile << "_get_all_nns 1ca ";
       myFile << i << " " << *(v + i) << std::endl;
       myFile.close();
     }
-    for (int i=0; i<sizeof(T) * _f;++i) {
+    for (int i=0; i<_f;++i) {
       myFile.open(filepath, std::ios_base::app);
       myFile << "_get_all_nns 1cb ";
       myFile << i << " " << (v_node->v)[i] << std::endl;
