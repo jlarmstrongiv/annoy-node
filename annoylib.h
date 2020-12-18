@@ -1351,54 +1351,18 @@ protected:
     std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
 
     myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1a" << std::endl;
+    myFile << "_get_all_nns 1" << std::endl;
     myFile.close();
     Node* v_node = (Node *)alloca(_s);
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1b" << std::endl;
-    myFile.close();
     D::template zero_value<Node>(v_node);
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1c" << " " << _s << " " << _f << " " << sizeof(T) << " " << sizeof(T) * _f << std::endl;
-    myFile.close();
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1c0 ";
-    // NOTE: should print first item of v
-    myFile << " " << *v << std::endl;
-    myFile.close();
-    // NOTE: should error here
-    for (int i=0; i<_f;++i) {
-      myFile.open(filepath, std::ios_base::app);
-      myFile << "_get_all_nns 1ca ";
-      myFile << i << " " << *(v + i) << std::endl;
-      myFile.close();
-    }
-    for (int i=0; i<_f;++i) {
-      myFile.open(filepath, std::ios_base::app);
-      myFile << "_get_all_nns 1cb ";
-      myFile << i << " " << (v_node->v)[i] << std::endl;
-      myFile.close();
-    }
     memcpy(v_node->v, v, sizeof(T) * _f);
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1d" << std::endl;
-    myFile.close();
     D::init_node(v_node, _f);
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1e" << std::endl;
-    myFile.close();
 
     std::priority_queue<pair<T, S> > q;
 
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1f" << std::endl;
-    myFile.close();
     if (search_k == -1) {
       search_k = n * _roots.size();
     }
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 2" << std::endl;
-    myFile.close();
 
     for (size_t i = 0; i < _roots.size(); i++) {
       q.push(make_pair(Distance::template pq_initial_value<T>(), _roots[i]));
