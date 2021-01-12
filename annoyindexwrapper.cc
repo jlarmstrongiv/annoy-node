@@ -5,6 +5,15 @@
 #include <iostream>
 #include <string>
 
+// using v8::Context;
+// using v8::Function;
+// using v8::FunctionCallbackInfo;
+// using v8::FunctionTemplate;
+// using v8::Isolate;
+// using v8::Local;
+// using v8::Object;
+// using v8::String;
+// using v8::Value;
 using namespace v8;
 using namespace Nan;
 
@@ -29,8 +38,7 @@ AnnoyIndexWrapper::~AnnoyIndexWrapper() {
 }
 
 void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
-  Nan::HandleScope scope;
-  v8::Local<v8::Context> context = Nan::GetCurrentContext();
+  v8::Local<v8::Context> context = exports->CreationContext();
 
   // Prepare constructor template
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -52,15 +60,16 @@ void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "getNItems", GetNItems);
   Nan::SetPrototypeMethod(tpl, "getDistance", GetDistance);
 
-  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-  exports->Set(context, Nan::New("Annoy").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  constructor.Reset(tpl->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("Annoy").ToLocalChecked(), tpl->GetFunction(context).ToLocalChecked());
 }
 
 void AnnoyIndexWrapper::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   if (info.IsConstructCall()) {
     // Invoked as constructor: `new AnnoyIndexWrapper(...)`
-    double dimensions = info[0]->IsUndefined() ? 0 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
+    double dimensions = info[0]->IsUndefined() ? 0 : info[0]->NumberValue(context).FromJust();
     Local<String> metricString;
 
     if (!info[1]->IsUndefined()) {
@@ -79,10 +88,11 @@ void AnnoyIndexWrapper::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out index.
-  int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
+  int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(context).FromJust();
   // Get out array.
   int length = obj->getDimensions();
   // float vec[length];
@@ -93,10 +103,11 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
 }
 
 void AnnoyIndexWrapper::Build(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out numberOfTrees.
-  int numberOfTrees = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
+  int numberOfTrees = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(context).FromJust();
   // printf("%s\n", "Calling build");
   obj->annoyIndex->build(numberOfTrees);
 }
@@ -138,13 +149,14 @@ void AnnoyIndexWrapper::Unload(const Nan::FunctionCallbackInfo<v8::Value>& info)
 }
 
 void AnnoyIndexWrapper::GetItem(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   Nan::HandleScope scope;
 
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
 
   // Get out index.
-  int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
+  int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(context).FromJust();
 
   // Get the vector.
   int length = obj->getDimensions();
@@ -163,12 +175,13 @@ void AnnoyIndexWrapper::GetItem(const Nan::FunctionCallbackInfo<v8::Value>& info
 }
 
 void AnnoyIndexWrapper::GetDistance(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
 
   // Get out indexes.
-  int indexA = info[0]->IsUndefined() ? 0 : info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
-  int indexB = info[1]->IsUndefined() ? 0 : info[1]->NumberValue(Nan::GetCurrentContext()).FromJust();
+  int indexA = info[0]->IsUndefined() ? 0 : info[0]->NumberValue(context).FromJust();
+  int indexB = info[1]->IsUndefined() ? 0 : info[1]->NumberValue(context).FromJust();
 
   // Return the distances.
   info.GetReturnValue().Set(obj->annoyIndex->get_distance(indexA, indexB));
@@ -208,6 +221,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
 }
 
 void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   Nan::HandleScope scope;
 
   // Get out object.
@@ -218,13 +232,13 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   }
 
   // Get out params.
-  int index = info[0]->NumberValue(Nan::GetCurrentContext()).FromJust();
+  int index = info[0]->NumberValue(context).FromJust();
   int numberOfNeighbors, searchK;
   bool includeDistances;
 
   // FIXME: temporary logs
   std::ofstream myFile;
-  std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
+  std::string filepath = "annoyindexwrapper.log";
 
   getSupplementaryGetNNsParams(info, numberOfNeighbors, searchK, includeDistances);
 
@@ -259,8 +273,7 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
 void AnnoyIndexWrapper::getSupplementaryGetNNsParams(
   const Nan::FunctionCallbackInfo<v8::Value>& info,
   int& numberOfNeighbors, int& searchK, bool& includeDistances) {
-
-  v8::Local<v8::Context> context = Nan::GetCurrentContext();
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   // Get out number of neighbors.
   numberOfNeighbors = info[1]->IsUndefined() ? 1 : info[1]->NumberValue(context).FromJust();
@@ -276,7 +289,7 @@ void AnnoyIndexWrapper::setNNReturnValues(
   int numberOfNeighbors, bool includeDistances,
   const std::vector<int>& nnIndexes, const std::vector<float>& distances,
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  v8::Local<v8::Context> context = Nan::GetCurrentContext();
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
@@ -317,7 +330,7 @@ void AnnoyIndexWrapper::GetNItems(const Nan::FunctionCallbackInfo<v8::Value>& in
 // Returns true if it was able to get items out of the array. false, if not.
 bool AnnoyIndexWrapper::getFloatArrayParam(
   const Nan::FunctionCallbackInfo<v8::Value>& info, int paramIndex, float *vec) {
-  v8::Local<v8::Context> context = Nan::GetCurrentContext();
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   bool succeeded = false;
 
@@ -328,7 +341,7 @@ bool AnnoyIndexWrapper::getFloatArrayParam(
     Local<Value> val;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
       val = jsArray->Get(context, i).ToLocalChecked();
-      // printf("Adding item to array: %f\n", (float)val->NumberValue(Nan::GetCurrentContext()).FromJust());
+      // printf("Adding item to array: %f\n", (float)val->NumberValue(context).FromJust());
       vec[i] = (float)val->NumberValue(context).FromJust();
     }
     succeeded = true;

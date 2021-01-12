@@ -1,8 +1,11 @@
 #include <nan.h>
 #include "annoyindexwrapper.h"
 
-void InitAll(v8::Local<v8::Object> exports) {
+using v8::Local;
+using v8::Object;
+
+void InitAll(Local<Object> exports) {
   AnnoyIndexWrapper::Init(exports);
 }
 
-NODE_MODULE(addon, InitAll)
+NODE_MODULE(NODE_GYP_MODULE_NAME, InitAll)
