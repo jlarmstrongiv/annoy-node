@@ -4,5 +4,7 @@ tests/data/*.bin
 tests/data/*.annoy
 tests/data/*.json
 tools/w2v-to-json
+include
 build
 *.swp
+.vscode/settings.json
