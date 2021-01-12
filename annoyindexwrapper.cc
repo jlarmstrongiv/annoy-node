@@ -17,19 +17,25 @@
 using namespace v8;
 using namespace Nan;
 
+#ifdef ANNOYLIB_MULTITHREADED_BUILD
+#define THREADED_POLICY AnnoyIndexMultiThreadedBuildPolicy
+#else
+#define THREADED_POLICY AnnoyIndexSingleThreadedBuildPolicy
+#endif
+
 Nan::Persistent<v8::Function> AnnoyIndexWrapper::constructor;
 
 AnnoyIndexWrapper::AnnoyIndexWrapper(int dimensions, const char *metricString) :
   annoyDimensions(dimensions) {
 
   if (strcmp(metricString, "Angular") == 0) {
-    annoyIndex = new AnnoyIndex<int, float, Angular, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
+    annoyIndex = new AnnoyIndex<int, float, Angular, Kiss64Random, THREADED_POLICY>(dimensions);
   }
   else if (strcmp(metricString, "Manhattan") == 0) {
-    annoyIndex = new AnnoyIndex<int, float, Manhattan, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
+    annoyIndex = new AnnoyIndex<int, float, Manhattan, Kiss64Random, THREADED_POLICY>(dimensions);
   }
   else {
-    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random, AnnoyIndexSingleThreadedBuildPolicy>(dimensions);
+    annoyIndex = new AnnoyIndex<int, float, Euclidean, Kiss64Random, THREADED_POLICY>(dimensions);
   }
 }
 
