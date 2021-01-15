@@ -1432,7 +1432,7 @@ protected:
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
-    myFile.close()
+    myFile.close();
   }
 };
 
