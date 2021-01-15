@@ -1130,6 +1130,20 @@ public:
   }
 
   void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const {
+    #include <fstream>
+    #include <iostream>
+    // FIXME: temporary logs
+    std::ofstream myFile;
+    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log1.txt";
+
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "get_nns_by_vector exclude" << std::endl;
+    if (exclude != nullptr) {
+      for (auto itr = exclude->begin(); itr != exclude->end(); itr++) {
+        myFile << *itr << std::endl;
+      }
+    }
+    myFile.close();
     _get_all_nns(w, n, search_k, result, distances, exclude);
   }
 
@@ -1391,10 +1405,24 @@ protected:
         nns_dist.push_back(make_pair(D::distance(v_node, _get(j), _f), j));
     }
 
+    // FIXME: temporary logs
+    std::ofstream myFile;
+    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log2.txt";
+
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns exclude" << std::endl;
+    if (exclude != nullptr) {
+      for (auto itr = exclude->begin(); itr != exclude->end(); itr++) {
+        myFile << *itr << std::endl;
+      }
+    }
+    myFile.close();
     size_t m = nns_dist.size();
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
+    myFile.open(filepath, std::ios_base::app);
     for (size_t i = 0; i < p; i++) {
+      myFile << "_get_all_nns nns_dist " << i << " " << nns_dist[i].second << std::endl;
       if (exclude != nullptr && std::find(exclude->begin(), exclude->end(), nns_dist[i].second) != exclude->end()) {
         continue;
       }
@@ -1402,6 +1430,7 @@ protected:
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
+    myFile.close()
   }
 };
 
