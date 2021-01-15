@@ -1395,7 +1395,7 @@ protected:
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
     for (size_t i = 0; i < p; i++) {
-      if (exclude != nullptr && std::find(exclude->begin(), exclude->end(), i) != exclude->end()) {
+      if (exclude != nullptr && std::find(exclude->begin(), exclude->end(), nns_dist[i].second) != exclude->end()) {
         continue;
       }
       if (distances)
