@@ -3,6 +3,7 @@
 
 #include <nan.h>
 #include "annoylib.h"
+#include <vector>
 
 class AnnoyIndexWrapper : public Nan::ObjectWrap {
  public:
@@ -31,6 +32,8 @@ class AnnoyIndexWrapper : public Nan::ObjectWrap {
   static Nan::Persistent<v8::Function> constructor;
   static bool getFloatArrayParam(const Nan::FunctionCallbackInfo<v8::Value>& info, 
     int paramIndex, float *vec);
+  static bool getIntArrayParam(const Nan::FunctionCallbackInfo<v8::Value>& info, 
+    int paramIndex, std::vector<int> vec);
   static void setNNReturnValues(
     int numberOfNeighbors, bool includeDistances,
     const std::vector<int>& nnIndexes, const std::vector<float>& distances,
