@@ -27,6 +27,10 @@
 #include <fcntl.h>
 #include <stddef.h>
 
+// FIXME: temporary logs
+#include <fstream>
+#include <iostream>
+
 #if defined(_MSC_VER) && _MSC_VER == 1500
 typedef unsigned char     uint8_t;
 typedef signed __int32    int32_t;
@@ -1130,8 +1134,6 @@ public:
   }
 
   void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const {
-    #include <fstream>
-    #include <iostream>
     // FIXME: temporary logs
     std::ofstream myFile;
     std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log1.txt";
