@@ -250,6 +250,9 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
     myFile << "GetNNSByVector exclude is not null or undefined" << std::endl;
     excludePtr = &excludeVec;
     getIntArrayParam(info, 4, excludeVec);
+    for (auto itr = excludePtr->begin(); itr != excludePtr->end(); itr++) {
+      myFile << *itr << std::endl;
+    }
   }
   myFile.close();
 
