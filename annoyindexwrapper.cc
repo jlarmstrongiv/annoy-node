@@ -133,8 +133,8 @@ void AnnoyIndexWrapper::OnDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& 
   obj->annoyIndex->on_disk_build(*Nan::Utf8String(filenameString));
 }
 
-void AnnoyIndexWrapper::OnDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  AnnoyIndexWrapper::PrepDiskBuild(info);
+void AnnoyIndexWrapper::PrepDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  AnnoyIndexWrapper::OnDiskBuild(info);
 }
 
 void AnnoyIndexWrapper::Build(const Nan::FunctionCallbackInfo<v8::Value>& info) {
