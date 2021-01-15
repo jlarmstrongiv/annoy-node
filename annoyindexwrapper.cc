@@ -239,7 +239,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   std::vector<int> *excludePtr = nullptr;
   if (!info[1]->IsNullOrUndefined()) {
     excludePtr = &excludeVec;
-    getIntArrayParam(info, 1, excludeVec);
+    getIntArrayParam(info, 4, excludeVec);
   }
 
   std::vector<int> nnIndexes;
