@@ -99,7 +99,7 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out index.
-  int index = info[0]->IsUndefined() ? 1 : info[0]->NumberValue(context).FromJust();
+  int index = info[0]->IsUndefined() ? obj->annoyIndex->_n_nodes : info[0]->NumberValue(context).FromJust();
   // Get out array.
   int length = obj->getDimensions();
   // float vec[length];
