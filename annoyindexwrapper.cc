@@ -271,10 +271,6 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   int numberOfNeighbors, searchK;
   bool includeDistances;
 
-  // FIXME: temporary logs
-  std::ofstream myFile;
-  std::string filepath = "annoyindexwrapper.log";
-
   getSupplementaryGetNNsParams(info, numberOfNeighbors, searchK, includeDistances);
 
   std::vector<int> nnIndexes;
@@ -286,23 +282,11 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   }
 
   // Make the call.
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "get_nns_by_item start" << std::endl;
-  myFile.close();
   obj->annoyIndex->get_nns_by_item(
     index, numberOfNeighbors, searchK, &nnIndexes, distancesPtr
   );
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "get_nns_by_item end" << std::endl;
-  myFile.close();
 
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "setNNReturnValues start" << std::endl;
-  myFile.close();
   setNNReturnValues(numberOfNeighbors, includeDistances, nnIndexes, distances, info);
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "setNNReturnValues end" << std::endl;
-  myFile.close();
 }
 
 void AnnoyIndexWrapper::getSupplementaryGetNNsParams(

@@ -26,9 +26,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stddef.h>
-// FIXME: temporary
-#include <fstream>
-#include <iostream>
 
 #if defined(_MSC_VER) && _MSC_VER == 1500
 typedef unsigned char     uint8_t;
@@ -1346,13 +1343,6 @@ protected:
   }
 
   void _get_all_nns(const T* v, size_t n, int search_k, vector<S>* result, vector<T>* distances) const {
-    // FIXME: temporary logs
-    std::ofstream myFile;
-    std::string filepath = "C:\\Users\\jlarmst\\Downloads\\annoy-example\\annoy-example\\annoyindexwrapper.log";
-
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 1" << std::endl;
-    myFile.close();
     Node* v_node = (Node *)alloca(_s);
     D::template zero_value<Node>(v_node);
     memcpy(v_node->v, v, sizeof(T) * _f);
@@ -1368,9 +1358,6 @@ protected:
       q.push(make_pair(Distance::template pq_initial_value<T>(), _roots[i]));
     }
 
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 3" << std::endl;
-    myFile.close();
     std::vector<S> nns;
     while (nns.size() < (size_t)search_k && !q.empty()) {
       const pair<T, S>& top = q.top();
@@ -1389,9 +1376,6 @@ protected:
         q.push(make_pair(D::pq_distance(d, margin, 0), static_cast<S>(nd->children[0])));
       }
     }
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 4" << std::endl;
-    myFile.close();
 
     // Get distances for all items
     // To avoid calculating distance multiple times for any items, sort by id
@@ -1406,9 +1390,6 @@ protected:
       if (_get(j)->n_descendants == 1)  // This is only to guard a really obscure case, #284
         nns_dist.push_back(make_pair(D::distance(v_node, _get(j), _f), j));
     }
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 5" << std::endl;
-    myFile.close();
 
     size_t m = nns_dist.size();
     size_t p = n < m ? n : m; // Return this many items
@@ -1418,9 +1399,6 @@ protected:
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns 6" << std::endl;
-    myFile.close();
   }
 };
 
