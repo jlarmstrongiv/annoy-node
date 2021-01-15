@@ -249,7 +249,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   if (!info[4]->IsNullOrUndefined()) {
     myFile << "GetNNSByVector exclude is not null or undefined" << std::endl;
     excludePtr = &excludeVec;
-    getIntArrayParam(info, 4, excludeVec);
+    getIntArrayParam(info, 4, excludePtr);
     for (auto itr = excludePtr->begin(); itr != excludePtr->end(); itr++) {
       myFile << *itr << std::endl;
     }
@@ -290,7 +290,7 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
   std::vector<int> *excludePtr = nullptr;
   if (!info[1]->IsNullOrUndefined()) {
     excludePtr = &excludeVec;
-    getIntArrayParam(info, 1, excludeVec);
+    getIntArrayParam(info, 1, excludePtr);
   }
   int numberOfNeighbors, searchK;
   bool includeDistances;
@@ -395,7 +395,7 @@ bool AnnoyIndexWrapper::getFloatArrayParam(
 
 // Returns true if it was able to get items out of the array. false, if not.
 bool AnnoyIndexWrapper::getIntArrayParam(
-  const Nan::FunctionCallbackInfo<v8::Value>& info, int paramIndex, std::vector<int> vec) {
+  const Nan::FunctionCallbackInfo<v8::Value>& info, int paramIndex, std::vector<int> *vec) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
   bool succeeded = false;
@@ -415,7 +415,7 @@ bool AnnoyIndexWrapper::getIntArrayParam(
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
       val = jsArray->Get(context, i).ToLocalChecked();
       // printf("Adding item to array: %d\n", (int)val->NumberValue(context).FromJust());
-      vec.push_back((int)val->NumberValue(context).FromJust());
+      vec->push_back((int)val->NumberValue(context).FromJust());
       myFile << "getIntArrayParam " << i << ": " << val->NumberValue(context).FromJust() << std::endl;
     }
     succeeded = true;

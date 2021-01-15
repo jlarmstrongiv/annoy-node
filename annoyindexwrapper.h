@@ -33,7 +33,7 @@ class AnnoyIndexWrapper : public Nan::ObjectWrap {
   static bool getFloatArrayParam(const Nan::FunctionCallbackInfo<v8::Value>& info, 
     int paramIndex, float *vec);
   static bool getIntArrayParam(const Nan::FunctionCallbackInfo<v8::Value>& info, 
-    int paramIndex, std::vector<int> vec);
+    int paramIndex, std::vector<int> *vec);
   static void setNNReturnValues(
     int numberOfNeighbors, bool includeDistances,
     const std::vector<int>& nnIndexes, const std::vector<float>& distances,
