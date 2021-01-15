@@ -17,6 +17,7 @@ class AnnoyIndexWrapper : public Nan::ObjectWrap {
   static void New(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void OnDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info);
+  static void PrepDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Build(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Save(const Nan::FunctionCallbackInfo<v8::Value>& info);
   static void Load(const Nan::FunctionCallbackInfo<v8::Value>& info);
