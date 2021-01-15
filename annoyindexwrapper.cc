@@ -56,6 +56,7 @@ void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
   // Nan::SetPrototypeMethod(tpl, "plusOne", PlusOne);
   // Nan::SetPrototypeMethod(tpl, "multiply", Multiply);
   Nan::SetPrototypeMethod(tpl, "addItem", AddItem);
+  Nan::SetPrototypeMethod(tpl, "onDiskBuild", OnDiskBuild);
   Nan::SetPrototypeMethod(tpl, "build", Build);
   Nan::SetPrototypeMethod(tpl, "save", Save);
   Nan::SetPrototypeMethod(tpl, "load", Load);
@@ -106,6 +107,22 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   if (getFloatArrayParam(info, 1, vec.data())) {
     obj->annoyIndex->add_item(index, vec.data());
   }
+}
+
+void AnnoyIndexWrapper::OnDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+  // Get out object.
+  AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
+  // Get out filename.
+  Local<String> filenameString;
+
+  if (!info[0]->IsUndefined()) {
+    Nan::MaybeLocal<String> s = Nan::To<String>(info[0]);
+    if (!s.IsEmpty()) {
+      filenameString = s.ToLocalChecked();
+    }
+  }
+  obj->annoyIndex->on_disk_build(*Nan::Utf8String(filenameString));
 }
 
 void AnnoyIndexWrapper::Build(const Nan::FunctionCallbackInfo<v8::Value>& info) {
