@@ -5,6 +5,10 @@
 #include <iostream>
 #include <string>
 
+// FIXME: temporary logs
+#include <fstream>
+#include <iostream>
+
 // using v8::Context;
 // using v8::Function;
 // using v8::FunctionCallbackInfo;
@@ -237,10 +241,17 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   // Get out optional exclude array.
   std::vector<int> excludeVec;
   std::vector<int> *excludePtr = nullptr;
-  if (!info[1]->IsNullOrUndefined()) {
+  // FIXME: temporary logs
+  std::ofstream myFile;
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
+
+  myFile.open(filepath, std::ios_base::app);
+  if (!info[4]->IsNullOrUndefined()) {
+    myFile << "GetNNSByVector exclude is not null or undefined" << std::endl;
     excludePtr = &excludeVec;
     getIntArrayParam(info, 4, excludeVec);
   }
+  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
@@ -387,17 +398,26 @@ bool AnnoyIndexWrapper::getIntArrayParam(
   bool succeeded = false;
 
   Local<Value> val;
+  // FIXME: temporary logs
+  std::ofstream myFile;
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0a.txt";
+
+  myFile.open(filepath, std::ios_base::app);
   if (info[paramIndex]->IsArray()) {
+    myFile << "getIntArrayParam param is an array" << std::endl;
     // TODO: Make sure it really is OK to use Local instead of Handle here.
     Local<Array> jsArray = Local<Array>::Cast(info[paramIndex]);
     Local<Value> val;
+    myFile << "getIntArrayParam array len " << jsArray->Length() << std::endl;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
       val = jsArray->Get(context, i).ToLocalChecked();
       // printf("Adding item to array: %d\n", (int)val->NumberValue(context).FromJust());
       vec.push_back((int)val->NumberValue(context).FromJust());
+      myFile << "getIntArrayParam " << i << ": " << val->NumberValue(context).FromJust() << std::endl;
     }
     succeeded = true;
   }
+  myFile.close();
 
   return succeeded;
 }
