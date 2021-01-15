@@ -68,7 +68,7 @@ void AnnoyIndexWrapper::Init(v8::Local<v8::Object> exports) {
   Nan::SetPrototypeMethod(tpl, "getDistance", GetDistance);
 
   constructor.Reset(tpl->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("Annoy").ToLocalChecked(), tpl->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("Annoy").ToLocalChecked(), tpl->GetFunction(context).ToLocalChecked()).Check();
 }
 
 void AnnoyIndexWrapper::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -119,7 +119,6 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
 }
 
 void AnnoyIndexWrapper::OnDiskBuild(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out filename.
@@ -346,8 +345,8 @@ void AnnoyIndexWrapper::setNNReturnValues(
     }
 
     jsResultObject = Nan::New<Object>();
-    jsResultObject->Set(context, Nan::New("neighbors").ToLocalChecked(), jsNNIndexes);
-    jsResultObject->Set(context, Nan::New("distances").ToLocalChecked(), jsDistancesArray);
+    jsResultObject->Set(context, Nan::New("neighbors").ToLocalChecked(), jsNNIndexes).Check();
+    jsResultObject->Set(context, Nan::New("distances").ToLocalChecked(), jsDistancesArray).Check();
   }
   else {
     jsResultObject = jsNNIndexes.As<Object>();
