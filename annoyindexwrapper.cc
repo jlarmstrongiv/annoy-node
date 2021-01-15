@@ -103,14 +103,12 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
     int index = info[0]->NumberValue(context).FromJust();
     // Get out array.
     int length = obj->getDimensions();
-    // float vec[length];
     std::vector<float> vec(length, 0.0f);
     if (getFloatArrayParam(info, 1, vec.data())) {
       obj->annoyIndex->add_item(index, vec.data());
     }
   } else { // info[0] is null, undefined, or array
     int length = obj->getDimensions();
-    // float vec[length];
     std::vector<float> vec(length, 0.0f);
     if (getFloatArrayParam(info, 0, vec.data())) {
       obj->annoyIndex->add_item(obj->annoyIndex->get_n_items(), vec.data());
@@ -232,7 +230,6 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out array.
   int length = obj->getDimensions();
-  // float vec[length];
   std::vector<float> vec(length, 0.0f);
   if (!getFloatArrayParam(info, 0, vec.data())) {
     return;
