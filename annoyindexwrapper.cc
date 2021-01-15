@@ -112,7 +112,7 @@ void AnnoyIndexWrapper::AddItem(const Nan::FunctionCallbackInfo<v8::Value>& info
     int length = obj->getDimensions();
     // float vec[length];
     std::vector<float> vec(length, 0.0f);
-    if (getFloatArrayParam(info, 1, vec.data())) {
+    if (getFloatArrayParam(info, 0, vec.data())) {
       obj->annoyIndex->add_item(obj->annoyIndex->get_n_items(), vec.data());
     }
   }
