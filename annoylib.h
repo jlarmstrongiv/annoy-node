@@ -1403,7 +1403,7 @@ protected:
     bool is_include = do_filter && strcmp(filter_type, "include");
     // FIXME: temporary logs
     std::ofstream myFile;
-    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log4.txt";
+    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
     myFile.open(filepath);
     myFile << "_get_all_nns " << do_filter << " " << is_exclude << " " << filter_type << " " << is_include << std::endl;
     for (size_t i = 0; i < p; i++) {

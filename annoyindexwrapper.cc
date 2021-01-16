@@ -360,7 +360,7 @@ void AnnoyIndexWrapper::setNNReturnValues(
 
   // FIXME: temporary logs
   std::ofstream myFile;
-  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log4.txt";
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log1.txt";
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
   for (int i = 0; i < numberOfNeighbors; ++i) {
