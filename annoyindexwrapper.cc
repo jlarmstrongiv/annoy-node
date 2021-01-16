@@ -224,6 +224,7 @@ void AnnoyIndexWrapper::GetDistance(const Nan::FunctionCallbackInfo<v8::Value>& 
 }
 
 void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  Isolate *isolate = info.GetIsolate();
   Nan::HandleScope scope;
 
   int numberOfNeighbors, searchK;
@@ -238,22 +239,32 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   if (!getFloatArrayParam(info, 0, vec.data())) {
     return;
   }
-  // Get out optional exclude array.
-  std::vector<int> excludeVec;
-  std::vector<int> *excludePtr = nullptr;
-  // FIXME: temporary logs		
-  std::ofstream myFile;		
-  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
+  // Get out optional filter array.
+  std::vector<int> filterVec;
+  std::vector<int> *filterPtr = nullptr;
 
-  myFile.open(filepath, std::ios_base::app);
+  Local<String> filterString = String::Empty(isolate);
   if (!info[4]->IsNullOrUndefined()) {
-    excludePtr = &excludeVec;
-    getIntArrayParam(info, 4, excludePtr);
-    for (auto itr = excludePtr->begin(); itr != excludePtr->end(); itr++) {		
-      myFile << *itr << std::endl;		
+    Nan::MaybeLocal<String> s = Nan::To<String>(info[4]);
+    if (!s.IsEmpty()) {
+      filterString = s.ToLocalChecked();
+    }
+    Local<String> FILTER_INCLUDE = String::NewFromUtf8(isolate, "include").ToLocalChecked();
+    Local<String> FILTER_EXCLUDE = String::NewFromUtf8(isolate, "exclude").ToLocalChecked();
+    if (info[4]->StrictEquals(FILTER_INCLUDE) || info[4]->StrictEquals(FILTER_EXCLUDE) == false) {
+      // Local<String> INVALID_FILTER_VALUE = String::NewFromUtf8(isolate,
+      //   "Expected 'include' or 'exclude' for filter_type but received '" +
+
+      // ).ToLocalChecked();
+      return Nan::ThrowTypeError(
+        "Expected 'include' or 'exclude' for filter_type"
+      );
+    }
+    if (!info[5]->IsNullOrUndefined()) {
+      filterPtr = &filterVec;
+      getIntArrayParam(info, 5, filterPtr);
     }
   }
-  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
@@ -265,7 +276,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
 
   // Make the call.
   obj->annoyIndex->get_nns_by_vector(
-    vec.data(), numberOfNeighbors, searchK, &nnIndexes, distancesPtr, excludePtr
+    vec.data(), numberOfNeighbors, searchK, &nnIndexes, distancesPtr, *Nan::Utf8String(filterString), filterPtr
   );
 
   setNNReturnValues(numberOfNeighbors, includeDistances, nnIndexes, distances, info);
@@ -284,17 +295,27 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
 
   // Get out params.
   int index = info[0]->NumberValue(context).FromJust();
-  // Get out optional exclude array.
-  std::vector<int> excludeVec;
-  std::vector<int> *excludePtr = nullptr;
-  if (!info[1]->IsNullOrUndefined()) {
-    excludePtr = &excludeVec;
-    getIntArrayParam(info, 1, excludePtr);
-  }
+
   int numberOfNeighbors, searchK;
   bool includeDistances;
 
   getSupplementaryGetNNsParams(info, numberOfNeighbors, searchK, includeDistances);
+
+  // Get out optional filter array.
+  std::vector<int> filterVec;
+  std::vector<int> *filterPtr = nullptr;
+
+  Local<String> filterString;
+  if (!info[4]->IsNullOrUndefined()) {
+    Nan::MaybeLocal<String> s = Nan::To<String>(info[4]);
+    if (!s.IsEmpty()) {
+      filterString = s.ToLocalChecked();
+    }
+    if (!info[5]->IsNullOrUndefined()) {
+      filterPtr = &filterVec;
+      getIntArrayParam(info, 5, filterPtr);
+    }
+  }
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
@@ -306,7 +327,7 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
 
   // Make the call.
   obj->annoyIndex->get_nns_by_item(
-    index, numberOfNeighbors, searchK, &nnIndexes, distancesPtr, excludePtr
+    index, numberOfNeighbors, searchK, &nnIndexes, distancesPtr, *Nan::Utf8String(filterString), filterPtr
   );
 
   setNNReturnValues(numberOfNeighbors, includeDistances, nnIndexes, distances, info);
@@ -332,15 +353,9 @@ void AnnoyIndexWrapper::setNNReturnValues(
   const std::vector<int>& nnIndexes, const std::vector<float>& distances,
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
-  // FIXME: temporary logs
-  std::ofstream myFile;
-  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
 
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "setNNSReturnValues 2 " << numberOfNeighbors << " =?= " << nnIndexes.size() << std::endl;
-  myFile.close();
   for (int i = 0; i < numberOfNeighbors; ++i) {
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
     Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
@@ -385,7 +400,6 @@ bool AnnoyIndexWrapper::getFloatArrayParam(
 
   Local<Value> val;
   if (info[paramIndex]->IsArray()) {
-    // TODO: Make sure it really is OK to use Local instead of Handle here.
     Local<Array> jsArray = Local<Array>::Cast(info[paramIndex]);
     Local<Value> val;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
@@ -408,7 +422,6 @@ bool AnnoyIndexWrapper::getIntArrayParam(
 
   Local<Value> val;
   if (info[paramIndex]->IsArray()) {
-    // TODO: Make sure it really is OK to use Local instead of Handle here.
     Local<Array> jsArray = Local<Array>::Cast(info[paramIndex]);
     Local<Value> val;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {

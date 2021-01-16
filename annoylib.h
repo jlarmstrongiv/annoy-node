@@ -838,8 +838,8 @@ class AnnoyIndexInterface {
   virtual void unload() = 0;
   virtual bool load(const char* filename, bool prefault=false, char** error=NULL) = 0;
   virtual T get_distance(S i, S j) const = 0;
-  virtual void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const = 0;
-  virtual void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const = 0;
+  virtual void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
+  virtual void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
   virtual S get_n_items() const = 0;
   virtual S get_n_trees() const = 0;
   virtual void verbose(bool v) = 0;
@@ -1127,26 +1127,14 @@ public:
     return D::normalized_distance(D::distance(_get(i), _get(j), _f));
   }
 
-  void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const {
+  void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type=nullptr, vector<int>* filter_vector=nullptr) const {
     // TODO: handle OOB
     const Node* m = _get(item);
-    _get_all_nns(m->v, n, search_k, result, distances, exclude);
+    _get_all_nns(m->v, n, search_k, result, distances, filter_type, filter_vector);
   }
 
-  void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude) const {
-    // FIXME: temporary logs
-    std::ofstream myFile;
-    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log1.txt";
-
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "get_nns_by_vector exclude" << std::endl;
-    if (exclude != nullptr) {
-      for (auto itr = exclude->begin(); itr != exclude->end(); itr++) {
-        myFile << *itr << std::endl;
-      }
-    }
-    myFile.close();
-    _get_all_nns(w, n, search_k, result, distances, exclude);
+  void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type=nullptr, vector<int>* filter_vector=nullptr) const {
+    _get_all_nns(w, n, search_k, result, distances, filter_type, filter_vector);
   }
 
   S get_n_items() const {
@@ -1358,7 +1346,7 @@ protected:
     return item;
   }
 
-  void _get_all_nns(const T* v, size_t n, int search_k, vector<S>* result, vector<T>* distances, vector<int>* exclude=nullptr) const {
+  void _get_all_nns(const T* v, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type=nullptr, vector<int>* filter_vector=nullptr) const {
     Node* v_node = (Node *)alloca(_s);
     D::template zero_value<Node>(v_node);
     memcpy(v_node->v, v, sizeof(T) * _f);
@@ -1407,35 +1395,24 @@ protected:
         nns_dist.push_back(make_pair(D::distance(v_node, _get(j), _f), j));
     }
 
-    // FIXME: temporary logs
-    std::ofstream myFile;
-    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log2.txt";
-
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns exclude" << std::endl;
-    if (exclude != nullptr) {
-      for (auto itr = exclude->begin(); itr != exclude->end(); itr++) {
-        myFile << *itr << std::endl;
-      }
-    }
-    myFile.close();
     size_t m = nns_dist.size();
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "_get_all_nns nns_dist size " << nns_dist.size() << std::endl;
     for (size_t i = 0; i < p; i++) {
-      myFile << "_get_all_nns nns_dist " << i << " " << nns_dist[i].second << std::endl;
-      if (exclude != nullptr && std::find(exclude->begin(), exclude->end(), nns_dist[i].second) != exclude->end()) {
-        myFile << "              ignored " << i << ":" << nns_dist[i].second << std::endl;
-        continue;
+      if (filter_type != nullptr && filter_vector != nullptr) {
+        if (filter_type == "exclude" &&
+            std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
+          continue;
+        }
+        if (filter_type == "include" &&
+            std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) == filter_vector->end()) {
+          continue;
+        }
       }
       if (distances)
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
-    myFile << "_get_all_nns finished" << std::endl;
-    myFile.close();
   }
 };
 
