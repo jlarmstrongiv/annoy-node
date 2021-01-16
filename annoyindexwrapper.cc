@@ -360,10 +360,7 @@ void AnnoyIndexWrapper::setNNReturnValues(
   if (includeDistances) {
     // Allocate the distances array.
     jsDistancesArray = Nan::New<Array>(numberOfNeighbors);
-  
-    myFile.open(filepath, std::ios_base::app);
-    myFile << "setNNSReturnValues 4" << std::endl;
-    myFile.close();
+
     for (int i = 0; i < numberOfNeighbors; ++i) {
       // printf("Adding to distances array: %f\n", distances[i]);
       Nan::Set(jsDistancesArray, i, Nan::New<Number>(distances[i]));
