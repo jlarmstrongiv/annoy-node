@@ -241,11 +241,19 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   // Get out optional exclude array.
   std::vector<int> excludeVec;
   std::vector<int> *excludePtr = nullptr;
+  // FIXME: temporary logs		
+  std::ofstream myFile;		
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
 
+  myFile.open(filepath, std::ios_base::app);
   if (!info[4]->IsNullOrUndefined()) {
     excludePtr = &excludeVec;
     getIntArrayParam(info, 4, excludePtr);
+    for (auto itr = excludePtr->begin(); itr != excludePtr->end(); itr++) {		
+      myFile << *itr << std::endl;		
+    }
   }
+  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
