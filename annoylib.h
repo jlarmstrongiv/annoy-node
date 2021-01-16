@@ -1398,21 +1398,30 @@ protected:
     size_t m = nns_dist.size();
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
+    bool do_filter = filter_type != nullptr && filter_vector != nullptr;
+    bool is_exclude = do_filter && strcmp(filter_type, "exclude");
+    bool is_include = do_filter && strcmp(filter_type, "include");
+    // FIXME: temporary logs
+    std::ofstream myFile;
+    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log4.txt";
+    myFile.open(filepath);
+    myFile << "_get_all_nns " << do_filter << " " << is_exclude << " " << is_include << std::endl;
     for (size_t i = 0; i < p; i++) {
-      if (filter_type != nullptr && filter_vector != nullptr) {
-        if (filter_type == "exclude" &&
-            std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
-          continue;
-        }
-        if (filter_type == "include" &&
-            std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) == filter_vector->end()) {
-          continue;
-        }
+      if (is_exclude &&
+          std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
+        myFile << "              ignored " << i << std::endl;
+        continue;
+      }
+      if (is_include &&
+          std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) == filter_vector->end()) {
+        myFile << "              ignored " << i << std::endl;
+        continue;
       }
       if (distances)
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
+    myFile.close();
   }
 };
 
