@@ -1395,7 +1395,8 @@ protected:
     bool do_filter = filter_type != nullptr && filter_vector != nullptr;
     bool is_exclude = do_filter && strcmp(filter_type, "exclude") == 0;
     bool is_include = do_filter && strcmp(filter_type, "include") == 0;
-    int p = is_include && filter_vector->size() < n ? filter_vector->size() : n;
+    size_t filter_size = do_filter ? filter_vector->size() : 0;
+    size_t p = is_include && filter_size < n ? filter_size : n;
     if (is_exclude) {
       std::sort(nns_dist.begin(), nns_dist.end());
     } else {
