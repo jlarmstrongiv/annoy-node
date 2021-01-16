@@ -332,14 +332,27 @@ void AnnoyIndexWrapper::setNNReturnValues(
   const std::vector<int>& nnIndexes, const std::vector<float>& distances,
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+  // FIXME: temporary logs
+  std::ofstream myFile;
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
+
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 1" << std::endl;
+  myFile.close();
 
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
-
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 2 " << numberOfNeighbors << " =?= " << nnIndexes.size() << std::endl;
+  myFile.close();
   for (int i = 0; i < numberOfNeighbors; ++i) {
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
     Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
   }
+  
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 3" << std::endl;
+  myFile.close();
 
   Local<Object> jsResultObject;
   Local<Array> jsDistancesArray;
@@ -347,7 +360,10 @@ void AnnoyIndexWrapper::setNNReturnValues(
   if (includeDistances) {
     // Allocate the distances array.
     jsDistancesArray = Nan::New<Array>(numberOfNeighbors);
-
+  
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "setNNSReturnValues 4" << std::endl;
+    myFile.close();
     for (int i = 0; i < numberOfNeighbors; ++i) {
       // printf("Adding to distances array: %f\n", distances[i]);
       Nan::Set(jsDistancesArray, i, Nan::New<Number>(distances[i]));
