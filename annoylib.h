@@ -1396,7 +1396,7 @@ protected:
     }
 
     size_t m = nns_dist.size();
-    std::sort(nns_dist.begin(), nns_dist.begin(), nns_dist.end());
+    std::sort(nns_dist.begin(), nns_dist.end());
     bool do_filter = filter_type != nullptr && filter_vector != nullptr;
     bool is_exclude = do_filter && strcmp(filter_type, "exclude") == 0;
     bool is_include = do_filter && strcmp(filter_type, "include") == 0;
