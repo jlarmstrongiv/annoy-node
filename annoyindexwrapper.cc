@@ -358,9 +358,15 @@ void AnnoyIndexWrapper::setNNReturnValues(
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
+  // FIXME: temporary logs
+  std::ofstream myFile;
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log4.txt";
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
   for (int i = 0; i < numberOfNeighbors; ++i) {
+    myFile.open(filepath);
+    myFile << "setNNReturnValues " << i << " " << nnIndexes[i] << std::endl;
+    myFile.close();
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
     Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
   }
