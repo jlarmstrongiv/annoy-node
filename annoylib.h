@@ -1396,7 +1396,6 @@ protected:
     }
 
     size_t m = nns_dist.size();
-    size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
     bool do_filter = filter_type != nullptr && filter_vector != nullptr;
     bool is_exclude = do_filter && strcmp(filter_type, "exclude") == 0;
@@ -1406,7 +1405,8 @@ protected:
     std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
     myFile.open(filepath);
     myFile << "_get_all_nns " << do_filter << " " << is_exclude << " " << filter_type << " " << is_include << std::endl;
-    for (size_t i = 0; i < p;) {
+    size_t result_count = 0
+    for (size_t i = 0; i < m && result_count < n; ++i) {
       if (is_exclude &&
           std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
         myFile << "              ignored " << i << std::endl;
@@ -1420,7 +1420,7 @@ protected:
       if (distances)
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
-      ++i;
+      ++result_count;
     }
     myFile.close();
   }
