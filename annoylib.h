@@ -1406,7 +1406,7 @@ protected:
     std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
     myFile.open(filepath);
     myFile << "_get_all_nns " << do_filter << " " << is_exclude << " " << filter_type << " " << is_include << std::endl;
-    for (size_t i = 0; i < p; i++) {
+    for (size_t i = 0; i < p;) {
       if (is_exclude &&
           std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
         myFile << "              ignored " << i << std::endl;
@@ -1420,6 +1420,7 @@ protected:
       if (distances)
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
+      ++i;
     }
     myFile.close();
   }
