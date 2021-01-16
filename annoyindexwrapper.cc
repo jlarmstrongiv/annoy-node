@@ -349,10 +349,6 @@ void AnnoyIndexWrapper::setNNReturnValues(
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
     Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
   }
-  
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "setNNSReturnValues 3" << std::endl;
-  myFile.close();
 
   Local<Object> jsResultObject;
   Local<Array> jsDistancesArray;
