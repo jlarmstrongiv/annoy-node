@@ -364,6 +364,7 @@ void AnnoyIndexWrapper::setNNReturnValues(
   myFile.open(filepath);
   myFile << "setNNReturnValues " << nnIndexes.size() << std::endl;
   myFile.close();
+  // note: numberOfNeighbors might not be needed
   int resultVectorSize = nnIndexes.size();
   int resultCount = resultVectorSize < numberOfNeighbors ? resultVectorSize : numberOfNeighbors;
   // Allocate the neighbors array.
@@ -378,9 +379,9 @@ void AnnoyIndexWrapper::setNNReturnValues(
 
   if (includeDistances) {
     // Allocate the distances array.
-    jsDistancesArray = Nan::New<Array>(numberOfNeighbors);
+    jsDistancesArray = Nan::New<Array>(resultCount);
 
-    for (int i = 0; i < numberOfNeighbors; ++i) {
+    for (int i = 0; i < resultCount; ++i) {
       // printf("Adding to distances array: %f\n", distances[i]);
       Nan::Set(jsDistancesArray, i, Nan::New<Number>(distances[i]));
     }
