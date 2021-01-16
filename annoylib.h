@@ -27,10 +27,6 @@
 #include <fcntl.h>
 #include <stddef.h>
 
-// FIXME: temporary logs
-#include <fstream>
-#include <iostream>
-
 #if defined(_MSC_VER) && _MSC_VER == 1500
 typedef unsigned char     uint8_t;
 typedef signed __int32    int32_t;
@@ -1396,25 +1392,23 @@ protected:
     }
 
     size_t m = nns_dist.size();
-    std::sort(nns_dist.begin(), nns_dist.end());
     bool do_filter = filter_type != nullptr && filter_vector != nullptr;
     bool is_exclude = do_filter && strcmp(filter_type, "exclude") == 0;
     bool is_include = do_filter && strcmp(filter_type, "include") == 0;
-    // FIXME: temporary logs
-    std::ofstream myFile;
-    std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
-    myFile.open(filepath);
-    myFile << "_get_all_nns " << do_filter << " " << is_exclude << " " << filter_type << " " << is_include << std::endl;
+    int p = is_include && filter_vector->size() < n : filter_vector->size() : n;
+    if (is_exclude) {
+      std::sort(nns_dist.begin(), nns_dist.end());
+    } else {
+      std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
+    }
     size_t result_count = 0;
-    for (size_t i = 0; i < m && result_count < n; ++i) {
+    for (size_t i = 0; i < m && result_count < p; ++i) {
       if (is_exclude &&
           std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) != filter_vector->end()) {
-        myFile << "              ignored " << i << std::endl;
         continue;
       }
       if (is_include &&
           std::find(filter_vector->begin(), filter_vector->end(), nns_dist[i].second) == filter_vector->end()) {
-        myFile << "              ignored " << i << std::endl;
         continue;
       }
       if (distances)
@@ -1422,7 +1416,6 @@ protected:
       result->push_back(nns_dist[i].second);
       ++result_count;
     }
-    myFile.close();
   }
 };
 

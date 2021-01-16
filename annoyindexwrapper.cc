@@ -5,10 +5,6 @@
 #include <iostream>
 #include <string>
 
-// FIXME: temporary logs
-#include <fstream>
-#include <iostream>
-
 // using v8::Context;
 // using v8::Function;
 // using v8::FunctionCallbackInfo;
@@ -358,12 +354,6 @@ void AnnoyIndexWrapper::setNNReturnValues(
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 
-  // FIXME: temporary logs
-  std::ofstream myFile;
-  std::string filepath = "log1.txt";
-  myFile.open(filepath);
-  myFile << "setNNReturnValues " << nnIndexes.size() << std::endl;
-  myFile.close();
   // note: numberOfNeighbors might not be needed
   int resultVectorSize = nnIndexes.size();
   int resultCount = resultVectorSize < numberOfNeighbors ? resultVectorSize : numberOfNeighbors;
