@@ -1423,15 +1423,18 @@ protected:
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
     myFile.open(filepath, std::ios_base::app);
+    myFile << "_get_all_nns nns_dist size " << nns_dist.size() << std::endl;
     for (size_t i = 0; i < p; i++) {
       myFile << "_get_all_nns nns_dist " << i << " " << nns_dist[i].second << std::endl;
       if (exclude != nullptr && std::find(exclude->begin(), exclude->end(), nns_dist[i].second) != exclude->end()) {
+        myFile << "              ignored " << i << ":" << nns_dist[i].second << std::endl;
         continue;
       }
       if (distances)
         distances->push_back(D::normalized_distance(nns_dist[i].first));
       result->push_back(nns_dist[i].second);
     }
+    myFile << "_get_all_nns finished" << std::endl;
     myFile.close();
   }
 };

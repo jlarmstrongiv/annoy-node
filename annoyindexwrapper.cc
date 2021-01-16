@@ -241,20 +241,11 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
   // Get out optional exclude array.
   std::vector<int> excludeVec;
   std::vector<int> *excludePtr = nullptr;
-  // FIXME: temporary logs
-  std::ofstream myFile;
-  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
 
-  myFile.open(filepath, std::ios_base::app);
   if (!info[4]->IsNullOrUndefined()) {
-    myFile << "GetNNSByVector exclude is not null or undefined" << std::endl;
     excludePtr = &excludeVec;
     getIntArrayParam(info, 4, excludePtr);
-    for (auto itr = excludePtr->begin(); itr != excludePtr->end(); itr++) {
-      myFile << *itr << std::endl;
-    }
   }
-  myFile.close();
 
   std::vector<int> nnIndexes;
   std::vector<float> distances;
@@ -333,13 +324,27 @@ void AnnoyIndexWrapper::setNNReturnValues(
   const std::vector<int>& nnIndexes, const std::vector<float>& distances,
   const Nan::FunctionCallbackInfo<v8::Value>& info) {
   v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+  // FIXME: temporary logs
+  std::ofstream myFile;
+  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
+
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 1" << std::endl;
+  myFile.close();
 
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 2 " << numberOfNeighbors << " =?= " << nnIndexes.size() << std::endl;
+  myFile.close();
   for (int i = 0; i < numberOfNeighbors; ++i) {
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
     Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
   }
+  
+  myFile.open(filepath, std::ios_base::app);
+  myFile << "setNNSReturnValues 3" << std::endl;
+  myFile.close();
 
   Local<Object> jsResultObject;
   Local<Array> jsDistancesArray;
@@ -347,10 +352,18 @@ void AnnoyIndexWrapper::setNNReturnValues(
   if (includeDistances) {
     // Allocate the distances array.
     jsDistancesArray = Nan::New<Array>(numberOfNeighbors);
+  
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "setNNSReturnValues 4" << std::endl;
+    myFile.close();
     for (int i = 0; i < numberOfNeighbors; ++i) {
       // printf("Adding to distances array: %f\n", distances[i]);
       Nan::Set(jsDistancesArray, i, Nan::New<Number>(distances[i]));
     }
+  
+    myFile.open(filepath, std::ios_base::app);
+    myFile << "setNNSReturnValues 5" << std::endl;
+    myFile.close();
 
     jsResultObject = Nan::New<Object>();
     jsResultObject->Set(context, Nan::New("neighbors").ToLocalChecked(), jsNNIndexes).Check();
@@ -401,26 +414,17 @@ bool AnnoyIndexWrapper::getIntArrayParam(
   bool succeeded = false;
 
   Local<Value> val;
-  // FIXME: temporary logs
-  std::ofstream myFile;
-  std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0a.txt";
-
-  myFile.open(filepath, std::ios_base::app);
   if (info[paramIndex]->IsArray()) {
-    myFile << "getIntArrayParam param is an array" << std::endl;
     // TODO: Make sure it really is OK to use Local instead of Handle here.
     Local<Array> jsArray = Local<Array>::Cast(info[paramIndex]);
     Local<Value> val;
-    myFile << "getIntArrayParam array len " << jsArray->Length() << std::endl;
     for (unsigned int i = 0; i < jsArray->Length(); i++) {
       val = jsArray->Get(context, i).ToLocalChecked();
       // printf("Adding item to array: %d\n", (int)val->NumberValue(context).FromJust());
       vec->push_back((int)val->NumberValue(context).FromJust());
-      myFile << "getIntArrayParam " << i << ": " << val->NumberValue(context).FromJust() << std::endl;
     }
     succeeded = true;
   }
-  myFile.close();
 
   return succeeded;
 }
