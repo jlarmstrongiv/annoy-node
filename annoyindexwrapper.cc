@@ -251,7 +251,7 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
     }
     Local<String> FILTER_INCLUDE = String::NewFromUtf8(isolate, "include").ToLocalChecked();
     Local<String> FILTER_EXCLUDE = String::NewFromUtf8(isolate, "exclude").ToLocalChecked();
-    if (info[4]->StrictEquals(FILTER_INCLUDE) || info[4]->StrictEquals(FILTER_EXCLUDE) == false) {
+    if ((info[4]->StrictEquals(FILTER_INCLUDE) || info[4]->StrictEquals(FILTER_EXCLUDE)) == false) {
       // Local<String> INVALID_FILTER_VALUE = String::NewFromUtf8(isolate,
       //   "Expected 'include' or 'exclude' for filter_type but received '" +
 
@@ -262,7 +262,11 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
     }
     if (!info[5]->IsNullOrUndefined()) {
       filterPtr = &filterVec;
-      getIntArrayParam(info, 5, filterPtr);
+      if (!getIntArrayParam(info, 5, filterPtr)) {
+        return Nan::ThrowError(
+          "Library error: failed to parse filter_vector for values"
+        );
+      }
     }
   }
 
