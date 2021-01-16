@@ -365,10 +365,10 @@ void AnnoyIndexWrapper::setNNReturnValues(
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
   for (int i = 0; i < numberOfNeighbors; ++i) {
     myFile.open(filepath);
-    myFile << "setNNReturnValues " << i << " " << nnIndexes[i] << std::endl;
+    myFile << "setNNReturnValues " << i << " " << std::endl;
     myFile.close();
     // printf("Adding to neighbors array: %d\n", nnIndexes[i]);
-    Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
+    // Nan::Set(jsNNIndexes, i, Nan::New<Number>(nnIndexes[i]));
   }
 
   Local<Object> jsResultObject;
