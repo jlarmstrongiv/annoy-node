@@ -336,10 +336,6 @@ void AnnoyIndexWrapper::setNNReturnValues(
   std::ofstream myFile;
   std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
 
-  myFile.open(filepath, std::ios_base::app);
-  myFile << "setNNSReturnValues 1" << std::endl;
-  myFile.close();
-
   // Allocate the neighbors array.
   Local<Array> jsNNIndexes = Nan::New<Array>(numberOfNeighbors);
   myFile.open(filepath, std::ios_base::app);
