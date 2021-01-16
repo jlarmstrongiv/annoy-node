@@ -1399,8 +1399,8 @@ protected:
     size_t p = n < m ? n : m; // Return this many items
     std::partial_sort(nns_dist.begin(), nns_dist.begin() + p, nns_dist.end());
     bool do_filter = filter_type != nullptr && filter_vector != nullptr;
-    bool is_exclude = do_filter && strcmp(filter_type, "exclude");
-    bool is_include = do_filter && strcmp(filter_type, "include");
+    bool is_exclude = do_filter && strcmp(filter_type, "exclude") == 0;
+    bool is_include = do_filter && strcmp(filter_type, "include") == 0;
     // FIXME: temporary logs
     std::ofstream myFile;
     std::string filepath = "/Users/jlarmst/Desktop/code/font-scraper-cache/reverse-image-search/all-google-fonts/log0.txt";
