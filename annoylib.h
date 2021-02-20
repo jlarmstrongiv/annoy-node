@@ -882,6 +882,7 @@ protected:
   bool _loaded;
   bool _verbose;
   int _fd;
+  bool _is_buffer;
   bool _on_disk;
   bool _built;
 public:
@@ -1039,6 +1040,7 @@ public:
 
   void reinitialize() {
     _fd = 0;
+    _is_buffer = false;
     _nodes = NULL;
     _loaded = false;
     _n_items = 0;
@@ -1058,6 +1060,8 @@ public:
         // we have mmapped data
         close(_fd);
         munmap(_nodes, _n_nodes * _s);
+      } else if (_is_buffer) {
+        // do nothing, v8 controls it
       } else if (_nodes) {
         // We have heap allocated data
         free(_nodes);
@@ -1130,6 +1134,7 @@ public:
       return false;
     }
 
+    _is_buffer = true;
     _nodes = (Node*)buffer;
     _n_nodes = (S)(size / _s);
 
