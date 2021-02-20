@@ -8,4 +8,4 @@ void InitAll(Local<Object> exports) {
   AnnoyIndexWrapper::Init(exports);
 }
 
-NODE_MODULE(NODE_GYP_MODULE_NAME, InitAll)
+NAN_MODULE_WORKER_ENABLED(NODE_GYP_MODULE_NAME, InitAll)
