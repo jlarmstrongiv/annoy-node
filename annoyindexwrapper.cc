@@ -162,15 +162,22 @@ void AnnoyIndexWrapper::Save(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 void AnnoyIndexWrapper::Load(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   bool result = false;
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
   // Get out file path.
   if (!info[0]->IsNullOrUndefined()) {
-    Nan::MaybeLocal<String> maybeStr = Nan::To<String>(info[0]);
-    v8::Local<String> str;
-    if (maybeStr.ToLocal(&str)) {
-      result = obj->annoyIndex->load(*Nan::Utf8String(str));
+    if (info[0]->IsArrayBuffer()) {
+      v8::Local<Object> inputBuf = info[0]->ToObject(context).ToLocalChecked();
+      std::shared_ptr<BackingStore> bufContents = ArrayBuffer::Cast(*inputBuf)->GetBackingStore();
+      result = obj->annoyIndex->loadBuffer(bufContents->Data(), bufContents->ByteLength());
+    } else if (info[0]->IsString()) {
+      Nan::MaybeLocal<String> maybeStr = Nan::To<String>(info[0]);
+      v8::Local<String> str;
+      if (maybeStr.ToLocal(&str)) {
+        result = obj->annoyIndex->load(*Nan::Utf8String(str));
+      }
     }
   }
   info.GetReturnValue().Set(Nan::New(result));

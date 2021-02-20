@@ -833,6 +833,7 @@ class AnnoyIndexInterface {
   virtual bool save(const char* filename, bool prefault=false, char** error=NULL) = 0;
   virtual void unload() = 0;
   virtual bool load(const char* filename, bool prefault=false, char** error=NULL) = 0;
+  virtual bool loadBuffer(void* buffer, off_t size, char** error=NULL) = 0;
   virtual T get_distance(S i, S j) const = 0;
   virtual void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
   virtual void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
@@ -1095,6 +1096,41 @@ public:
 #endif
     }
     _nodes = (Node*)mmap(0, size, PROT_READ, flags, _fd, 0);
+    _n_nodes = (S)(size / _s);
+
+    // Find the roots by scanning the end of the file and taking the nodes with most descendants
+    _roots.clear();
+    S m = -1;
+    for (S i = _n_nodes - 1; i >= 0; i--) {
+      S k = _get(i)->n_descendants;
+      if (m == -1 || k == m) {
+        _roots.push_back(i);
+        m = k;
+      } else {
+        break;
+      }
+    }
+    // hacky fix: since the last root precedes the copy of all roots, delete it
+    if (_roots.size() > 1 && _get(_roots.front())->children[0] == _get(_roots.back())->children[0])
+      _roots.pop_back();
+    _loaded = true;
+    _built = true;
+    _n_items = m;
+    if (_verbose) showUpdate("found %zu roots with degree %d\n", _roots.size(), m);
+    return true;
+  }
+
+  bool loadBuffer(void* buffer, off_t size, char** error=NULL) {
+    if (size == 0) {
+      set_error_from_errno(error, "Size of file is zero");
+      return false;
+    } else if (size % _s) {
+      // Something is fishy with this index!
+      set_error_from_errno(error, "Index size is not a multiple of vector size. Ensure you are opening using the same metric you used to create the index.");
+      return false;
+    }
+
+    _nodes = (Node*)buffer;
     _n_nodes = (S)(size / _s);
 
     // Find the roots by scanning the end of the file and taking the nodes with most descendants
