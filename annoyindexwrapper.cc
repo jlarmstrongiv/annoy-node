@@ -170,8 +170,9 @@ void AnnoyIndexWrapper::Load(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if (!info[0]->IsNullOrUndefined()) {
     if (info[0]->IsArrayBuffer()) {
       v8::Local<Object> inputBuf = info[0]->ToObject(context).ToLocalChecked();
-      std::shared_ptr<BackingStore> bufContents = ArrayBuffer::Cast(*inputBuf)->GetBackingStore();
-      result = obj->annoyIndex->loadBuffer(bufContents->Data(), bufContents->ByteLength());
+      // std::shared_ptr<BackingStore> bufContents = ArrayBuffer::Cast(*inputBuf)->GetBackingStore();
+      ArrayBuffer::Contents bufContents = ArrayBuffer::Cast(*inputBuf)->GetContents();
+      result = obj->annoyIndex->loadBuffer(bufContents.Data(), bufContents.ByteLength());
     } else if (info[0]->IsString()) {
       Nan::MaybeLocal<String> maybeStr = Nan::To<String>(info[0]);
       v8::Local<String> str;
