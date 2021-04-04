@@ -199,6 +199,16 @@ void AnnoyIndexWrapper::GetItem(const Nan::FunctionCallbackInfo<v8::Value>& info
   // Get out index.
   int index = info[0]->IsNullOrUndefined() ? 1 : info[0]->NumberValue(context).FromJust();
 
+  int annoyIndexSize = obj->annoyIndex->get_n_items();
+  if (index < 0) {
+    index = annoyIndexSize - index;
+  }
+  if (index >= annoyIndexSize || index < 0) {
+    return Nan::ThrowError(
+      "getItem: Index out of bounds"
+    );
+  }
+
   // Get the vector.
   int length = obj->getDimensions();
   std::vector<float> vec(length, 0.0f);
@@ -237,6 +247,12 @@ void AnnoyIndexWrapper::GetNNSByVector(const Nan::FunctionCallbackInfo<v8::Value
 
   // Get out object.
   AnnoyIndexWrapper* obj = ObjectWrap::Unwrap<AnnoyIndexWrapper>(info.Holder());
+
+  int annoyIndexSize = obj->annoyIndex->get_n_items();
+  if (numberOfNeighbors >= annoyIndexSize) {
+    numberOfNeighbors = annoyIndexSize - 1;
+  }
+
   // Get out input array.
   int length = obj->getDimensions();
   std::vector<float> vec(length, 0.0f);
@@ -303,6 +319,16 @@ void AnnoyIndexWrapper::GetNNSByItem(const Nan::FunctionCallbackInfo<v8::Value>&
 
   // Get out params.
   int index = info[0]->NumberValue(context).FromJust();
+
+  int annoyIndexSize = obj->annoyIndex->get_n_items();
+  if (index < 0) {
+    index = annoyIndexSize - index;
+  }
+  if (index >= annoyIndexSize || index < 0) {
+    return Nan::ThrowError(
+      "getNNSByItem: Index out of bounds"
+    );
+  }
 
   int numberOfNeighbors, searchK;
   bool includeDistances;
