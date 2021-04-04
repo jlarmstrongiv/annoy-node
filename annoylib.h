@@ -833,7 +833,7 @@ class AnnoyIndexInterface {
   virtual bool save(const char* filename, bool prefault=false, char** error=NULL) = 0;
   virtual void unload() = 0;
   virtual bool load(const char* filename, bool prefault=false, char** error=NULL) = 0;
-  virtual bool loadBuffer(void* buffer, off_t size, char** error=NULL) = 0;
+  virtual bool loadBuffer(void* buffer, off_t size, bool copy=false, char** error=NULL) = 0;
   virtual T get_distance(S i, S j) const = 0;
   virtual void get_nns_by_item(S item, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
   virtual void get_nns_by_vector(const T* w, size_t n, int search_k, vector<S>* result, vector<T>* distances, const char* filter_type, vector<int>* filter_vector) const = 0;
@@ -1124,7 +1124,7 @@ public:
     return true;
   }
 
-  bool loadBuffer(void* buffer, off_t size, char** error=NULL) {
+  bool loadBuffer(void* buffer, off_t size, bool copy=false, char** error=NULL) {
     if (size == 0) {
       set_error_from_errno(error, "Size of file is zero");
       return false;
@@ -1135,7 +1135,12 @@ public:
     }
 
     _is_buffer = true;
-    _nodes = (Node*)buffer;
+    if (copy) {
+      _nodes = malloc(size);
+      memcpy(_nodes, buffer, size);
+    } else {
+      _nodes = (Node*)buffer;
+    }
     _n_nodes = (S)(size / _s);
 
     // Find the roots by scanning the end of the file and taking the nodes with most descendants
